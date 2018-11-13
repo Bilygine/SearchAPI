@@ -9,10 +9,19 @@ const datastore = new Datastore({
 	projectId: projectId,
 })
 
+const kind = 'OutputAnalyze'
+
 app.get('/', function (req, res) {
   // SELECT * FROM Outputanalyzer WHERE oa_analyze_id="azbrtgerfdez"
-	res = datastore.createQuery('')
-      .hasAncestor(datastore.key(['oa_analyzeid', "trjtryjzrtyzht"]))
+	const query = datastore.createQuery([kind]).filter('oa_analyzeid', '=', 'trjtryjzrtyzht')
+	datastore.runQuery(query).then(results => {
+  // Task entities found.
+  	const tasks = results[0]
+
+  	console.log('Tasks:')
+  	tasks.forEach(task => res.send(task))
+	})
+	
 })
 
 // API Routes
