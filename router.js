@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require('express')
 const router = express.Router()
 const _ = require('lodash');
 const Datastore = require('@google-cloud/datastore');
@@ -10,7 +10,7 @@ const datastore = new Datastore({
     projectId: projectId,
 })
 
-const table = 'OutputAnalyze'
+const KIND = 'OutputAnalyze'
 
 router.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*")
@@ -20,7 +20,7 @@ router.use(function(req, res, next) {
 })
 
 router.post('/search/:occurence', function (req, res) {
-    const query = datastore.createQuery([table])
+    const query = datastore.createQuery([KIND])
         .filter('oa_word', '=', req.params.occurence)
     let grouped
     datastore.runQuery(query).then(results => {
@@ -34,7 +34,19 @@ router.post('/search/:occurence', function (req, res) {
     }).catch(e => {
         console.log(e)
     })
+})
 
+router.get('/words', function (req, res) {
+    const query = datastore.createQuery([KIND]).groupBy('oa_word')
+    let grouped
+    datastore.runQuery(query).then(results => {
+        // Group results by analyze_id
+        results = results[0].map(result => result.oa_word)
+        // Send grouped results
+        res.send(results)
+    }).catch(e => {
+        console.log(e)
+    })
 })
 
 module.exports = router;
